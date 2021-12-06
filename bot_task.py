@@ -25,6 +25,7 @@ def log_in(message):
 # MENU *** Меню *** meny *** Меню *** meny
 
 @bot.message_handler(content_types=['text'])
+# Проверка наличие ID в БД
 def bot_message(message):
     for i in bd:
         crossing = []
@@ -36,6 +37,13 @@ def bot_message(message):
             break
         else:
             print('Пользователя нет в БД')
+            bot.send_message(message.chat.id, 'Пользователя нет в БД напиши @albobob')
+            break
+
+
+# Получаем список заданй
+# def task(message):
+#     task_sheet.push_task(message.from_user.id)
 
 
 bot.polling()
