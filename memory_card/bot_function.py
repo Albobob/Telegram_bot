@@ -1,4 +1,5 @@
 import sqlite3 as sq
+import bot_dict_sql_request as dc
 
 name_of_the_database = 'bot_memory.db'
 bd = name_of_the_database
@@ -8,6 +9,17 @@ front_side = front_side.lower().capitalize()
 reverse_side = 'ответ'
 reverse_side = reverse_side.lower().capitalize()
 user_id = 1
+
+
+def sql_request(request: str) -> []:
+    data = []
+    with sq.connect(bd) as con:
+        cur = con.cursor()
+        cur.execute(request)
+        for i in cur:
+            data.append(i)
+
+    return data
 
 
 def insert_memory_card(front_side: str, reverse_side: str, user_id: int) -> None:
@@ -66,3 +78,10 @@ def users_item(user_id: int) -> []:
 
 def learning_to_write():
     pass
+
+
+def all_user() -> []:
+    return [i[0] for i in sql_request(dc.request['users'])]
+
+
+print(all_user())
