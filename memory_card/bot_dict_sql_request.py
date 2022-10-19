@@ -1,0 +1,3 @@
+request = {
+    'front_side': """ * """
+}
