@@ -1,3 +1,0 @@
-request = {
-    'front_side': """ * """
-}
