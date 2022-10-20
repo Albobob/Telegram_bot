@@ -22,25 +22,44 @@ def sql_request(request: str) -> []:
     return data
 
 
-def insert_memory_card(front_side: str, reverse_side: str, user_id: int) -> None:
+def insert_memory_card(front_side: str, reverse_side: str, profile_id: int) -> None:
     """
     :param front_side: Внешняя сторона карточки
     :param reverse_side: Обратная сторона карточки
-    :param user_id: Пользователь (id)
+    :param profile_id: Пользователь (id)
     :return:
     """
+
     with sq.connect(bd) as con:
         cur = con.cursor()
         #
         cur.execute(f"""
         INSERT INTO memory_card (front_side, reverse_side, user_id)
-        VALUES('{front_side}', '{reverse_side}', {user_id})
+        VALUES('{front_side}', '{reverse_side}', {profile_id})
                 """)
 
 
-def check_uniq_column(name_table: str, name_column: str, check_value: str) -> True or False:
+def insert_user(name: str, id_profile: int) -> None:
+    """
+    :param id_profile: id пользователя
+    :param name: имя пользователя
+    :return: Записывает в таблицу users пользователя
+    """
+    if check_uniq_column('users', 'id_profile', id_profile):
+        with sq.connect(bd) as con:
+            cur = con.cursor()
+            cur.execute(f"""
+        INSERT INTO users (name, id_profile)
+        VALUES('{name}', {id_profile})
+                """)
+    else:
+        print(f'Пользователь {name} ({id_profile}) уже имеется в {name_of_the_database}')
+
+
+def check_uniq_column(name_table: str, name_column: str, check_value) -> True or False:
     """
     Проверяет уникальность добавляемого значения
+    :rtype: object
     :param name_table: Название таблицы
     :param name_column: Название колонки
     :param check_value: Искомое значение
@@ -64,6 +83,7 @@ def check_uniq_column(name_table: str, name_column: str, check_value: str) -> Tr
             return True
 
 
+'''
 # Проверка уникальности лицевой стороны карточки
 if check_uniq_column('memory_card', 'front_side', f'{front_side}'):
     print(f'Запись "{front_side}" добавлена в {name_of_the_database} ')
@@ -71,12 +91,20 @@ if check_uniq_column('memory_card', 'front_side', f'{front_side}'):
 else:
     print(f'Запись "{front_side}" уже есть.')
 
+'''
 
-def users_item(user_id: int) -> []:
+
+def users_item(id_profile: int) -> []:
+    """
+
+    :param id_profile:
+    :return: Вывводит все каточки пользователя
+    """
+
     pass
 
 
-def learning_to_write():
+def learning_to_write(id_profile: int, memory_card_id: int, ):
     pass
 
 
