@@ -25,19 +25,23 @@ def insert_memory_card(front_side: str, reverse_side: str, id_profile: int) -> N
     :param id_profile: Пользователь (id)
     :return:
     """
-    reverse_side = reverse_side.lower().capitalize()
-    front_side = front_side.lower().capitalize()
+    try:
+        reverse_side = reverse_side.lower().capitalize()
+        front_side = front_side.lower().capitalize()
 
-    if check_uniq_column('memory_card', 'front_side', front_side):
-        with sq.connect(bd) as con:
-            cur = con.cursor()
-            #
-            cur.execute(f"""
-        INSERT INTO memory_card (front_side, reverse_side, id_profile)
-        VALUES('{front_side}', '{reverse_side}', {id_profile})
-                """)
-    else:
-        print(f'Запись "{front_side}" уже есть.')
+        if check_uniq_column('memory_card', 'front_side', front_side):
+            with sq.connect(bd) as con:
+                cur = con.cursor()
+                #
+                cur.execute(f"""
+            INSERT INTO memory_card (front_side, reverse_side, id_profile)
+            VALUES('{front_side}', '{reverse_side}', {id_profile})
+                    """)
+        else:
+            print(f'Запись "{front_side}" уже есть.')
+    except:
+        print("!!! EROR !!! Слово с ковычками !!! EROR !!! ")
+
 
 
 def insert_user(name: str, id_profile: int) -> None:
@@ -73,7 +77,7 @@ def check_uniq_column(name_table: str, name_column: str, check_value) -> True or
         #
         cur.execute(f"""
         SELECT {name_column} FROM {name_table} 
-        WHERE {name_column} == '{check_value}'
+        WHERE {name_column} == "{check_value}"
                 """)
 
         for i in cur:
