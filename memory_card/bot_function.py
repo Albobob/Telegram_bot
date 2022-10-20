@@ -43,7 +43,6 @@ def insert_memory_card(front_side: str, reverse_side: str, id_profile: int) -> N
         print("!!! EROR !!! Слово с ковычками !!! EROR !!! ")
 
 
-
 def insert_user(name: str, id_profile: int) -> None:
     """
     Проверяет имеется ли пользователь в БД и записывает если он отстутствует
@@ -105,7 +104,19 @@ def users_item(id_profile: int) -> []:
         return [i for i in cur]
 
 
-def learning_to_write(id_profile: int, memory_card_id: int, ):
+def get_memory_card(id_profile: int, memory_card_id: int) -> tuple:
+    data = users_item(id_profile)
+    for i in data:
+        if memory_card_id == int(i[0]):
+            reverse_side = i[3]
+            front_side = i[2]
+            return front_side, reverse_side
+
+    pass
+
+
+def learning_to_write():
+    response_user = input('Введите лицевую сторону карточки >>> ')
     pass
 
 
