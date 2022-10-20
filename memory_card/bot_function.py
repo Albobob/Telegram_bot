@@ -38,9 +38,36 @@ def insert_memory_card(front_side: str, reverse_side: str, id_profile: int) -> N
             VALUES('{front_side}', '{reverse_side}', {id_profile})
                     """)
         else:
-            print(f'Запись "{front_side}" уже есть.')
+            pass
+            # print(f'Запись "{front_side}" уже есть.')
     except:
         print("!!! EROR !!! Слово с ковычками !!! EROR !!! ")
+
+
+def insert_stats_card(id_profile: int, memory_card_id: int, response: True or False) -> None:
+    """
+
+    :param id_profile: id Пользователя
+    :param memory_card_id: id Карточки
+    :param response: Ответ пользователя (True или False)
+    :return: Если пользоваель ответил правильно...
+    """
+    if response:
+        with sq.connect(bd) as con:
+            cur = con.cursor()
+            cur.execute(f"""
+        INSERT INTO stats_card (memory_card_id, id_profile, correctly )
+        VALUES('{memory_card_id}', {id_profile}, {1})
+                """)
+    else:
+        with sq.connect(bd) as con:
+            cur = con.cursor()
+            cur.execute(f"""
+        INSERT INTO stats_card (memory_card_id, id_profile, wrong )
+        VALUES('{memory_card_id}', {id_profile}, {1})
+                """)
+
+    pass
 
 
 def insert_user(name: str, id_profile: int) -> None:
@@ -58,7 +85,8 @@ def insert_user(name: str, id_profile: int) -> None:
         VALUES('{name}', {id_profile})
                 """)
     else:
-        print(f'Пользователь {name} ({id_profile}) уже имеется в {name_of_the_database}')
+        pass
+        # print(f'Пользователь {name} ({id_profile}) уже имеется в {name_of_the_database}')
 
 
 def check_uniq_column(name_table: str, name_column: str, check_value) -> True or False:
@@ -101,7 +129,7 @@ def users_item(id_profile: int) -> []:
         cur.execute(f"""
         SELECT * FROM memory_card mc  
         WHERE id_profile == {id_profile}""")
-        return [i for i in cur]
+        return (i for i in cur)
 
 
 def get_memory_card(id_profile: int, memory_card_id: int) -> tuple:
@@ -115,13 +143,17 @@ def get_memory_card(id_profile: int, memory_card_id: int) -> tuple:
     pass
 
 
-def learning_to_write():
-    response_user = input('Введите лицевую сторону карточки >>> ')
+def learning_to_write(id_profile: int, memory_card_id: int):
+    card = get_memory_card(id_profile, memory_card_id)
+    response_user = input(f'Обратная сторона карточки: |{card[1]}|\nВведите лицевую сторону карточки >>> ').lower()
+    if response_user == card[0].lower():
+        insert_stats_card(id_profile, memory_card_id, True)
+    else:
+        insert_stats_card(id_profile, memory_card_id, False)
     pass
 
 
 def all_user() -> []:
     return [i[0] for i in sql_request(dc.request['users'])]
 
-
-print(all_user())
+# print(all_user())
