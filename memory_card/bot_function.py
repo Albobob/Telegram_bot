@@ -37,7 +37,7 @@ def insert_memory_card(front_side: str, reverse_side: str, id_profile: int) -> N
         VALUES('{front_side}', '{reverse_side}', {id_profile})
                 """)
     else:
-        print(f'Карточка со значением {front_side} уже имеется')
+        print(f'Запись "{front_side}" уже есть.')
 
 
 def insert_user(name: str, id_profile: int) -> None:
@@ -85,17 +85,6 @@ def check_uniq_column(name_table: str, name_column: str, check_value) -> True or
             return True
 
 
-'''
-# Проверка уникальности лицевой стороны карточки
-if check_uniq_column('memory_card', 'front_side', f'{front_side}'):
-    print(f'Запись "{front_side}" добавлена в {name_of_the_database} ')
-    insert_memory_card(front_side, reverse_side, user_id)
-else:
-    print(f'Запись "{front_side}" уже есть.')
-
-'''
-
-
 def users_item(id_profile: int) -> []:
     """
 
@@ -103,7 +92,13 @@ def users_item(id_profile: int) -> []:
     :return: Вывводит все каточки пользователя
     """
 
-    pass
+    with sq.connect(bd) as con:
+        cur = con.cursor()
+        #
+        cur.execute(f"""
+        SELECT * FROM memory_card mc  
+        WHERE id_profile == {id_profile}""")
+        return [i for i in cur]
 
 
 def learning_to_write(id_profile: int, memory_card_id: int, ):
