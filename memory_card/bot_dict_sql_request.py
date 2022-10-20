@@ -1,4 +1,4 @@
 request = {
-    'users': """ SELECT DISTINCT id_profile FROM users u  """,
+    'users': """ SELECT DISTINCT name FROM users u  """,
 
 }

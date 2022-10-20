@@ -7,6 +7,7 @@ bd = name_of_the_database
 user_id = 1
 
 
+# Работа с Базой данных
 def sql_request(request: str) -> []:
     data = []
     with sq.connect(bd) as con:
@@ -89,6 +90,7 @@ def insert_user(name: str, id_profile: int) -> None:
         # print(f'Пользователь {name} ({id_profile}) уже имеется в {name_of_the_database}')
 
 
+# Работа с данными из БД
 def check_uniq_column(name_table: str, name_column: str, check_value) -> True or False:
     """
     Проверяет уникальность добавляемого значения
@@ -116,9 +118,10 @@ def check_uniq_column(name_table: str, name_column: str, check_value) -> True or
             return True
 
 
-def users_item(id_profile: int) -> []:
+def users_item(id_profile: int):
+    data = []
     """
-
+    Отдает карточик пользователя
     :param id_profile:
     :return: Вывводит все каточки пользователя
     """
@@ -129,7 +132,9 @@ def users_item(id_profile: int) -> []:
         cur.execute(f"""
         SELECT * FROM memory_card mc  
         WHERE id_profile == {id_profile}""")
-        return (i for i in cur)
+        for i in cur:
+            data.append(i)
+    return data
 
 
 def get_memory_card(id_profile: int, memory_card_id: int) -> tuple:
@@ -156,4 +161,30 @@ def learning_to_write(id_profile: int, memory_card_id: int):
 def all_user() -> []:
     return [i[0] for i in sql_request(dc.request['users'])]
 
-# print(all_user())
+
+def check_amount_cards(id_profile: int) -> True or False:
+    """
+    Проверяет есть ли у пользователя карточки
+    :param id_profile:
+    :return:
+    """
+    if len(users_item(id_profile)) > 0:
+        return True
+    else:
+        print('У вас нет ни одной карточки ((')
+        return False
+
+
+def training(id_profile: int):
+    card_all = []
+    card_t = []
+    if check_amount_cards(id_profile):
+        for i in users_item(id_profile):
+            card_all.append(i[0])
+        print(card_all)
+        pass
+    else:
+        pass
+
+
+print(training(645419280))
