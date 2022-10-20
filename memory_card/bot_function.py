@@ -4,10 +4,6 @@ import bot_dict_sql_request as dc
 name_of_the_database = 'bot_memory.db'
 bd = name_of_the_database
 
-front_side = 'answer'
-front_side = front_side.lower().capitalize()
-reverse_side = 'ответ'
-reverse_side = reverse_side.lower().capitalize()
 user_id = 1
 
 
@@ -22,28 +18,34 @@ def sql_request(request: str) -> []:
     return data
 
 
-def insert_memory_card(front_side: str, reverse_side: str, profile_id: int) -> None:
+def insert_memory_card(front_side: str, reverse_side: str, id_profile: int) -> None:
     """
     :param front_side: Внешняя сторона карточки
     :param reverse_side: Обратная сторона карточки
-    :param profile_id: Пользователь (id)
+    :param id_profile: Пользователь (id)
     :return:
     """
+    reverse_side = reverse_side.lower().capitalize()
+    front_side = front_side.lower().capitalize()
 
-    with sq.connect(bd) as con:
-        cur = con.cursor()
-        #
-        cur.execute(f"""
-        INSERT INTO memory_card (front_side, reverse_side, user_id)
-        VALUES('{front_side}', '{reverse_side}', {profile_id})
+    if check_uniq_column('memory_card', 'front_side', front_side):
+        with sq.connect(bd) as con:
+            cur = con.cursor()
+            #
+            cur.execute(f"""
+        INSERT INTO memory_card (front_side, reverse_side, id_profile)
+        VALUES('{front_side}', '{reverse_side}', {id_profile})
                 """)
+    else:
+        print(f'Карточка со значением {front_side} уже имеется')
 
 
 def insert_user(name: str, id_profile: int) -> None:
     """
+    Проверяет имеется ли пользователь в БД и записывает если он отстутствует
     :param id_profile: id пользователя
     :param name: имя пользователя
-    :return: Записывает в таблицу users пользователя
+    :return: Записывает в таблицу 'users' пользователя
     """
     if check_uniq_column('users', 'id_profile', id_profile):
         with sq.connect(bd) as con:
