@@ -8,7 +8,12 @@ user_id = 1
 
 
 # Работа с Базой данных
-def sql_request(request: str) -> []:
+def sql_request(request: str) -> list:
+    """
+
+    :param request: Запрос в базу данных
+    :return:
+    """
     data = []
     with sq.connect(bd) as con:
         cur = con.cursor()
@@ -21,6 +26,7 @@ def sql_request(request: str) -> []:
 
 def insert_memory_card(front_side: str, reverse_side: str, id_profile: int) -> None:
     """
+    Добавление в БД карточки
     :param front_side: Внешняя сторона карточки
     :param reverse_side: Обратная сторона карточки
     :param id_profile: Пользователь (id)
@@ -47,11 +53,13 @@ def insert_memory_card(front_side: str, reverse_side: str, id_profile: int) -> N
 
 def insert_stats_card(id_profile: int, memory_card_id: int, response: True or False) -> None:
     """
-
-    :param id_profile: id Пользователя
+    Добавление данных в БД таблица  stats_card
+    :param id_profile: Пользователь (id)
     :param memory_card_id: id Карточки
     :param response: Ответ пользователя (True или False)
-    :return: Если пользоваель ответил правильно...
+    :return: Если пользоваель ответил правильно
+     записывается 1 в слобец correctly,
+     елси непраильно в стобец wrong
     """
     if response:
         with sq.connect(bd) as con:
@@ -73,8 +81,8 @@ def insert_stats_card(id_profile: int, memory_card_id: int, response: True or Fa
 
 def insert_user(name: str, id_profile: int) -> None:
     """
-    Проверяет имеется ли пользователь в БД и записывает если он отстутствует
-    :param id_profile: id пользователя
+    Проверяет Записывает пользователя в БД если он отсутствует
+    :param id_profile: Пользователь (id)
     :param name: имя пользователя
     :return: Записывает в таблицу 'users' пользователя
     """
@@ -93,7 +101,7 @@ def insert_user(name: str, id_profile: int) -> None:
 def cards_statistics(id_profile: int, memory_card_id: int) -> dict:
     """
     Отдает статистику по карточке
-    :param id_profile: id пользователя
+    :param id_profile: Пользователь (id)
     :param memory_card_id: id карточки
     :return: Отдает статистику по карточке в виде словаря
     """
@@ -166,13 +174,12 @@ def check_uniq_column(name_table: str, name_column: str, check_value) -> True or
 
 
 def cards_users(id_profile: int) -> list:
-    data = []
     """
     Отдает карточик пользователя
-    :param id_profile:
+    :param id_profile: Пользователь (id)
     :return: Вывводит все каточки пользователя
     """
-
+    data = []
     with sq.connect(bd) as con:
         cur = con.cursor()
         #
@@ -185,13 +192,12 @@ def cards_users(id_profile: int) -> list:
 
 
 def cards_learning(id_profile):
-    data = []
     """
     Отдает карточики которые тренировал пользователь 
-    :param id_profile:
+    :param id_profile: Пользователь (id)
     :return: Вывводит тренируемы каточки пользователя
     """
-
+    data = []
     with sq.connect(bd) as con:
         cur = con.cursor()
         #
@@ -204,6 +210,12 @@ def cards_learning(id_profile):
 
 
 def get_memory_card(id_profile: int, memory_card_id: int) -> tuple:
+    """
+    Отдает искомую карточку
+    :param id_profile: Пользователь (id)
+    :param memory_card_id: id Карточки
+    :return:
+    """
     data = cards_users(id_profile)
     for i in data:
         if memory_card_id == int(i[0]):
@@ -215,6 +227,12 @@ def get_memory_card(id_profile: int, memory_card_id: int) -> tuple:
 
 
 def learning_to_write(id_profile: int, memory_card_id: int):
+    """
+
+    :param id_profile:
+    :param memory_card_id:
+    :return:
+    """
     card = get_memory_card(id_profile, memory_card_id)
     response_user = input(f'Обратная сторона карточки: |{card[1]}|\nВведите лицевую сторону карточки >>> ').lower()
     if response_user == card[0].lower():
@@ -231,7 +249,7 @@ def all_user() -> list:
 def check_amount_cards(id_profile: int) -> True or False:
     """
     Проверяет есть ли у пользователя карточки
-    :param id_profile:
+    :param id_profile: Пользователь (id)
     :return:
     """
     if len(cards_users(id_profile)) > 0:
@@ -241,7 +259,7 @@ def check_amount_cards(id_profile: int) -> True or False:
         return False
 
 
-def training(id_profile: int):
+def training_list(id_profile: int):
     first_of_all = []  # Окончательный список с выводом карточек
     card_all = []  # Все карточки пользователя
     card_t = []  # Карточки которые тренеровали
@@ -271,5 +289,7 @@ def training(id_profile: int):
         print('У пользователя ещё нет карточек')
 
 
-print(training(645419280))
-# print(learning_to_write(645419280, 1))
+def start_training(id_profile: int):
+    recommended_cards = training_list(id_profile)
+    for i in recommended_cards:
+        learning_to_write(id_profile, i)
