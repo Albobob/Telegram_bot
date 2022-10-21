@@ -12,5 +12,7 @@ bot_function.insert_memory_card(f"Fence", 'Забор', profile_id[0])
 # bot_function.learning_to_write(profile_id[0], 4)
 # pprint(bot_function.users_item(profile_id[4]))
 
-bot_function.start_training(645419280)
 
+# bot_function.insert_memory_card('dude up', 'приодеться', 645419281)
+
+bot_function.start_training(645419281)

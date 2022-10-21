@@ -65,15 +65,15 @@ def insert_stats_card(id_profile: int, memory_card_id: int, response: True or Fa
         with sq.connect(bd) as con:
             cur = con.cursor()
             cur.execute(f"""
-        INSERT INTO stats_card (memory_card_id, id_profile, correctly )
-        VALUES('{memory_card_id}', {id_profile}, {1})
+        INSERT INTO stats_card (memory_card_id, id_profile, correctly, wrong )
+        VALUES('{memory_card_id}', {id_profile}, {1}, {0})
                 """)
     else:
         with sq.connect(bd) as con:
             cur = con.cursor()
             cur.execute(f"""
-        INSERT INTO stats_card (memory_card_id, id_profile, wrong )
-        VALUES('{memory_card_id}', {id_profile}, {1})
+        INSERT INTO stats_card (memory_card_id, id_profile, correctly, wrong )
+        VALUES('{memory_card_id}', {id_profile}, {0},{1})
                 """)
 
     pass
@@ -137,8 +137,11 @@ def cards_statistics(id_profile: int, memory_card_id: int) -> dict:
         for i in cur:
             data['count'] = i[0]
 
-    data['indicator'] = data['wrong'] - data['correctly']
-    data['percent_of_negative'] = data['indicator'] / data['count']
+    if data['wrong'] or data['correctly'] is not None:
+        data['indicator'] = data['wrong'] - data['correctly']
+        data['percent_of_negative'] = data['indicator'] / data['count']
+    else:
+        print('Карточки не тренировались')
 
     return data
 
@@ -279,7 +282,9 @@ def training_list(id_profile: int):
             data_advice = cards_statistics(id_profile, i)
             advice[f'{int(i)}'] = data_advice['percent_of_negative']
 
-        for i in ({k: v for k, v in sorted(advice.items(), key=lambda item: item[1])}):  # Сортирую по значению
+        for i in (
+                {k: v for k, v in
+                 sorted(advice.items(), key=lambda item: item[1], reverse=True)}):  # Сортирую по значению
             first_of_all.append(int(i))
 
         return first_of_all
