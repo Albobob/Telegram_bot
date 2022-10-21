@@ -118,7 +118,7 @@ def check_uniq_column(name_table: str, name_column: str, check_value) -> True or
             return True
 
 
-def users_item(id_profile: int):
+def cards_users(id_profile: int):
     data = []
     """
     Отдает карточик пользователя
@@ -137,8 +137,27 @@ def users_item(id_profile: int):
     return data
 
 
+def cards_learning(id_profile):
+    data = []
+    """
+    Отдает карточики которые тренировал пользователь 
+    :param id_profile:
+    :return: Вывводит тренируемы каточки пользователя
+    """
+
+    with sq.connect(bd) as con:
+        cur = con.cursor()
+        #
+        cur.execute(f"""
+        SELECT * FROM stats_card  
+        WHERE id_profile == {id_profile}""")
+        for i in cur:
+            data.append(i)
+    return data
+
+
 def get_memory_card(id_profile: int, memory_card_id: int) -> tuple:
-    data = users_item(id_profile)
+    data = cards_users(id_profile)
     for i in data:
         if memory_card_id == int(i[0]):
             reverse_side = i[3]
@@ -168,7 +187,7 @@ def check_amount_cards(id_profile: int) -> True or False:
     :param id_profile:
     :return:
     """
-    if len(users_item(id_profile)) > 0:
+    if len(cards_users(id_profile)) > 0:
         return True
     else:
         print('У вас нет ни одной карточки ((')
@@ -176,15 +195,25 @@ def check_amount_cards(id_profile: int) -> True or False:
 
 
 def training(id_profile: int):
-    card_all = []
-    card_t = []
-    if check_amount_cards(id_profile):
-        for i in users_item(id_profile):
+    first_of_all = []  # Окончательный список с выводом карточек
+    card_all = []  # Все карточки пользователя
+    card_t = []  # Карточки которые тренеровали
+    if check_amount_cards(id_profile):  # Если у пользователя есть карточки 
+        for i in cards_users(id_profile):
             card_all.append(i[0])
-        print(card_all)
+
+        for i in cards_learning(id_profile):
+            card_t.append(i[4])
+
+        intersect = set(card_all) - set(card_t)
+        for i in intersect:
+            first_of_all.append(i)
+
+        print(first_of_all)
         pass
     else:
-        pass
+        print('У пользователя ещё нет карточек')
 
 
 print(training(645419280))
+# print(learning_to_write(645419280, 1))
