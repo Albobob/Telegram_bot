@@ -90,6 +90,53 @@ def insert_user(name: str, id_profile: int) -> None:
         # print(f'Пользователь {name} ({id_profile}) уже имеется в {name_of_the_database}')
 
 
+def cards_statistics(id_profile: int, memory_card_id: int) -> dict:
+    """
+    Отдает статистику по карточке
+    :param id_profile: id пользователя
+    :param memory_card_id: id карточки
+    :return: Отдает статистику по карточке в виде словаря
+    """
+    data = {
+        'wrong': None,
+        'correctly': None,
+        'count': None,
+        'indicator': None,
+
+    }
+
+    with sq.connect(bd) as con:
+        cur = con.cursor()
+        #
+        cur.execute(f"""
+        SELECT Sum(wrong) FROM stats_card sc 
+        WHERE  id_profile == '{id_profile}' AND memory_card_id == '{memory_card_id}' """)
+
+        for i in cur:
+            data['wrong'] = i[0]
+
+        cur.execute(f"""
+        SELECT Sum(correctly) FROM stats_card sc 
+        WHERE  id_profile == '{id_profile}' AND memory_card_id == '{memory_card_id}' """)
+
+        for i in cur:
+            data['correctly'] = i[0]
+
+        cur.execute(f"""
+                SELECT count(memory_card_id) FROM stats_card sc 
+                WHERE  id_profile == '{id_profile}' AND memory_card_id == '{memory_card_id}' """)
+
+        for i in cur:
+            data['count'] = i[0]
+
+    data['indicator'] = data['wrong'] - data['correctly']
+    data['percent_of_negative'] = data['indicator'] / data['count']
+
+    return data
+
+    pass
+
+
 # Работа с данными из БД
 def check_uniq_column(name_table: str, name_column: str, check_value) -> True or False:
     """
@@ -118,7 +165,7 @@ def check_uniq_column(name_table: str, name_column: str, check_value) -> True or
             return True
 
 
-def cards_users(id_profile: int):
+def cards_users(id_profile: int) -> list:
     data = []
     """
     Отдает карточик пользователя
@@ -177,7 +224,7 @@ def learning_to_write(id_profile: int, memory_card_id: int):
     pass
 
 
-def all_user() -> []:
+def all_user() -> list:
     return [i[0] for i in sql_request(dc.request['users'])]
 
 
@@ -198,18 +245,27 @@ def training(id_profile: int):
     first_of_all = []  # Окончательный список с выводом карточек
     card_all = []  # Все карточки пользователя
     card_t = []  # Карточки которые тренеровали
-    if check_amount_cards(id_profile):  # Если у пользователя есть карточки 
+    advice = {}
+    if check_amount_cards(id_profile):  # Если у пользователя есть карточки
         for i in cards_users(id_profile):
-            card_all.append(i[0])
+            card_all.append(i[0])  # Получаю все карточки пользователя
 
         for i in cards_learning(id_profile):
-            card_t.append(i[4])
+            card_t.append(i[4])  # Получаю карточки которые тренеровали
 
-        intersect = set(card_all) - set(card_t)
+        intersect = set(card_all) - set(card_t)  # Получаю карточки которые НЕ тренеровали
         for i in intersect:
-            first_of_all.append(i)
+            first_of_all.append(i)  # Ставлю на первое место карточки которые НЕ тренеровали
 
-        print(first_of_all)
+        for i in set(card_t):
+            data_advice = cards_statistics(id_profile, i)
+            advice[f'{int(i)}'] = data_advice['percent_of_negative']
+
+        for i in ({k: v for k, v in sorted(advice.items(), key=lambda item: item[1])}):  # Сортирую по значению
+            first_of_all.append(int(i))
+
+        return first_of_all
+
         pass
     else:
         print('У пользователя ещё нет карточек')
