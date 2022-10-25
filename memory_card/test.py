@@ -33,3 +33,5 @@ def log_in(message: types.Message):
     markup.add(btn_pack, btn_new_pack, btn_new_card, btn_treining)
 
     bot.send_message(message.chat.id, msg_hi, reply_markup=markup)
+
+bot.polling()
