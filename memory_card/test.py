@@ -6,53 +6,30 @@ import bot_function as bf
 
 bot = telebot.TeleBot(info.request['token'])
 
+btn = {
+    1: 'Меню',
+    2: 'Ваши словари',
+    3: 'Создать словарь',
+    4: 'Создать карточку',
+    5: 'Тренироваться',
+}
+
 
 @bot.message_handler(commands=['start', ])
 def log_in(message: types.Message):
     user_id = message.from_user.id
     username = message.from_user.username
     bf.insert_user(username, user_id)
-    msg_hi = '''Всем привет! Это бот для 'memory' карт.\nНаслаждайтесь освоением своих собственных словарей! '''
+    msg_hi = '''Всем привет!\nЭто бот для 'memory' карт.\nНаслаждайтесь освоением своих собственных словарей! '''
 
     # MENU *** Меню *** meny *** MENU *** Меню *** meny *** MENU
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    # button_1 = types.KeyboardButton('◀  Назад')
-    button_2 = types.KeyboardButton('Ваши словари 🗂️')
+    btn_menu = types.KeyboardButton(btn[1])
+    btn_pack = types.KeyboardButton(btn[2])
+    btn_new_pack = types.KeyboardButton(btn[3])
+    btn_new_card = types.KeyboardButton(btn[4])
+    btn_treining = types.KeyboardButton(btn[5])
 
-    # markup.add(button_1, button_2)
-    markup.add(button_2)
+    markup.add(btn_pack, btn_new_pack, btn_new_card, btn_treining)
+
     bot.send_message(message.chat.id, msg_hi, reply_markup=markup)
-
-
-@bot.message_handler(content_types=['text'])
-def bot_message(message: types.Message):
-    user_id = message.from_user.id
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    button_3 = types.KeyboardButton('Создать словарь 🗂️')
-    if message.text == 'Ваши словари 🗂️':
-        pack = bf.name_pack(user_id)
-        print(len(pack))
-        if len(pack) > 0:
-            markup.add(button_3)
-            bot.send_message(message.chat.id, "Ваши словари:")
-            for i in pack:
-                bot.send_message(message.chat.id, i)
-        else:
-            markup.add(button_3)
-            bot.send_message(message.chat.id, "У вас нет словарей!", reply_markup=markup)
-            if message.text == 'Создать словарь 🗂️':
-                bot.send_message(message.chat.id, "Введите название словаря в таком виде:\n*название словаря")
-                if message.text[0] == '*':
-                    name_pack = message.text.split('*')
-                    print(name_pack)
-                    # bf.insert_pack(id_profile=user_id, name='')
-                    pass
-                else:
-                    bot.send_message(message.chat.id, "Введите название словаря в таком виде:\n*название словаря")
-
-
-                pass
-
-
-#
-bot.polling()
