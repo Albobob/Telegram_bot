@@ -25,6 +25,7 @@ def sql_request(request: str) -> list:
 
 
 def insert_memory_card(front_side: str, reverse_side: str, id_profile: int) -> None:
+    # front_side: str, reverse_side: str,
     """
     Добавление в БД карточки
     :param front_side: Внешняя сторона карточки
@@ -32,9 +33,11 @@ def insert_memory_card(front_side: str, reverse_side: str, id_profile: int) -> N
     :param id_profile: Пользователь (id)
     :return:
     """
+    front_side = front_side.lower().capitalize()
+    reverse_side = reverse_side.lower().capitalize()
     try:
-        reverse_side = reverse_side.lower().capitalize()
-        front_side = front_side.lower().capitalize()
+        print(front_side)
+        print(reverse_side)
 
         if check_uniq_column('memory_card', 'front_side', front_side):
             with sq.connect(bd) as con:
@@ -95,7 +98,7 @@ def insert_user(name: str, id_profile: int) -> None:
                 """)
     else:
         pass
-        # print(f'Пользователь {name} ({id_profile}) уже имеется в {name_of_the_database}')
+        print(f'Пользователь {name} ({id_profile}) уже имеется в {name_of_the_database}')
 
 
 def cards_statistics(id_profile: int, memory_card_id: int) -> dict:
@@ -298,3 +301,34 @@ def start_training(id_profile: int):
     recommended_cards = training_list(id_profile)
     for i in recommended_cards:
         learning_to_write(id_profile, i)
+
+
+def name_pack(id_profile: int) -> list:
+    """
+    Возвращает словари пользователя
+    :param id_profile:
+    :return:
+    """
+    with sq.connect(bd) as con:
+        data = []
+        cur = con.cursor()
+        #
+        cur.execute(f"""
+        SELECT name  FROM pack 
+        WHERE id_profile == '{id_profile}'
+                """)
+        for i in cur:
+            data.append(i)
+        return data
+
+    pass
+
+
+def insert_pack(id_profile: int, name: str) -> None:
+    with sq.connect(bd) as con:
+        cur = con.cursor()
+        #
+        cur.execute(f"""
+    INSERT INTO pack (id_profile, name)
+    VALUES('{id_profile}', '{name}')
+            """)
